@@ -1,1 +1,1 @@
-Demo of ml5.js & mobilenet model with three.js dynamic environment.
+Demo of perceptron neural network with a 3.js visualization
