@@ -2,7 +2,7 @@ class Perceptron {
   constructor(numWeights, learningConst) {
     this.weights = new Array(numWeights);
     for (let i = 0; i < this.weights.length; i++) {
-      this.weights.push(random(-1, 1))
+      // this.weights.push(Math.random(-1, 1))
     }
     this.learningConst = learningConst;
   }

@@ -1,5 +1,9 @@
 let camera, sceneHUD, cameraHUD, rotateAngle, renderer, scene, player, bullets, bulletsBlock, input, environment, _vector, clock, lastTimeStamp;
 let label = '';
+let blocks = [{input: 0, output: 1}];
+
+let count = 0;
+let perceptron = new Perceptron(4, 0.001);
 
 let RELOAD = 1000; 
 
@@ -189,6 +193,12 @@ function createMeshes() {
     env2Block.position.x = (Math.random() - 0.5) * 400;
     env2Block.position.y = (Math.random() - 0.5) * 400;
     env2Block.position.z = (Math.random() - 0.5) * 300;
+    env2Block.name = 'block';
+    if (env2Block.position.x > 0) {
+      env2Block.answer = -1;
+    } else {
+      env2Block.answer = 1;
+    }
     scene.add(env2Block); //DROP ELEMENT INTO VIRTUAL ENVIRONMENT
   }
 
@@ -229,7 +239,7 @@ function createMeshes() {
 
 function createRenderer() {
   renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(600, 400);
+  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(window.devicePixelRatio);
 
   renderer.physicallyCorrectLights = true;
@@ -241,6 +251,36 @@ function createRenderer() {
 
 
 let animate = function (timeStamp) {
+
+  //what is input / output
+  //if (object.position.x > 0) {answer = 1; else answer = -1}
+  // training[i] = {input: object.position.x, output: answer}
+
+  perceptron.train(blocks[count].input, blocks[count].output);
+  count = (count + 1) % blocks.length;
+
+  for (let i = 0; i < count; i++) {
+    let guess = perceptron.feedforward(blocks[i].input);
+    if (guess > 0) {
+      // TODO: doesn't color if guess isn't 0
+    } else {
+      // console.log(blocks[i].input)
+      let pos = blocks[i].input;
+      let x = pos[0];
+      let y = pos[1];
+      let z = pos[2];
+
+      let foundBlockGeometry = new THREE.BoxBufferGeometry(2, 2, 2); //PRIMITIVE SHAPE AND SIZE
+      let foundBlockMaterial = new THREE.MeshLambertMaterial({ color: 0x13fc03 }); //COLOR OF MESH
+      let foundBlock = new THREE.Mesh(foundBlockGeometry, foundBlockMaterial); //MESH POINTS MAT TO GEOMETRY
+      foundBlock.position.x = x;
+      foundBlock.position.y = y;
+      foundBlock.position.z = z;
+      scene.add(foundBlock)
+      // TODO: change color of block
+    }
+  }
+
   // let label = '' || label;
   stats.begin();
 
@@ -350,12 +390,22 @@ let animate = function (timeStamp) {
     scene.setGravity(new THREE.Vector3(0, -.1, 0));
 
   }
-
+  // debugger
   //FWD 
+  // let blocks = [];
+  for (let i = 0; i < scene.children.length; i++) {
+    let child = scene.children[i]; 
+    // debugger
+    if (child.name === 'block') {
+      debugger
+      blocks.push({input: [child.position.x, child.position.y, child.position.z, 1], output: child.answer})
+    }
+  }
+  debugger
 
 
   if ((input.isFwdPressed || label === "forward")) {
-    console.log(player.position.z)
+    // console.log(player.position.z)
     player.__dirtyPosition = true;
     player.__dirtyRotation = true;
     player.setAngularFactor(_vector);
