@@ -186,19 +186,30 @@ function createMeshes() {
   //OBSTACLES
     // 07c
   // ELEMENT ONE (**LOOK UP MATERIAL OPTIONS**)
-  for (let i = 0; i < 1000; i++) {
+  for (let i = 0; i < 40; i++) {
     let env2BlockGeometry = new THREE.BoxBufferGeometry(1, 1, 1); //PRIMITIVE SHAPE AND SIZE
     let env2BlockMaterial = new THREE.MeshLambertMaterial({ color: 0x22CAC2 }); //COLOR OF MESH
     let env2Block = new THREE.Mesh(env2BlockGeometry, env2BlockMaterial); //MESH POINTS MAT TO GEOMETRY
-    env2Block.position.x = (Math.random() - 0.5) * 400;
-    env2Block.position.y = (Math.random() - 0.5) * 400;
-    env2Block.position.z = (Math.random() - 0.5) * 300;
+    env2Block.position.x = (Math.random() - 0.5) * 100;
+    env2Block.position.y = 200;
+    env2Block.position.z = (Math.random() - 0.5) * 100;
     env2Block.name = 'block';
     if (env2Block.position.x > 0) {
       env2Block.answer = -1;
     } else {
       env2Block.answer = 1;
     }
+
+    env3Block.addEventListener('collision', function (other_object, linear_velocity, angular_velocity) {
+      if (other_object.name === 'block') {
+        // player.points += 1;
+        // let pointEle = document.getElementById('points')
+        // pointEle.innerHTML = `Score: ${player.points}`
+        scene.remove(other_object)
+      }
+    });
+
+
     scene.add(env2Block); //DROP ELEMENT INTO VIRTUAL ENVIRONMENT
   }
 
@@ -252,19 +263,26 @@ function createRenderer() {
 
 let animate = function (timeStamp) {
 
-  //what is input / output
-  //if (object.position.x > 0) {answer = 1; else answer = -1}
-  // training[i] = {input: object.position.x, output: answer}
+  // let blocks = [];
+  for (let i = 0; i < scene.children.length; i++) {
+    let child = scene.children[i];
+    // debugger
+    if (child.name === 'block') {
+      debugger
+      blocks.push({ input: [child.position.x, child.position.y, child.position.z, 1], output: child.answer })
+    }
+  }
+  // debugger
 
   // debugger
-  if (count > 0) {
+  // if (count > 0) {
     perceptron.train(blocks[count].input, blocks[count].output);
-  }
+  // }
   count = (count + 1) % blocks.length;
 
   for (let i = 0; i < count; i++) {
     let guess = perceptron.feedforward(blocks[i].input);
-    if (guess > 0) {
+    if (guess !== blocks[i].output) {
       // TODO: doesn't color if guess isn't 0
       let pos = blocks[i].input;
       // debugger
@@ -272,27 +290,25 @@ let animate = function (timeStamp) {
       let y = pos[1];
       let z = pos[2];
 
-      let uhohBlockGeometry = new THREE.BoxBufferGeometry(3, 2, 2); //PRIMITIVE SHAPE AND SIZE
+      let uhohBlockGeometry = new THREE.BoxBufferGeometry(3, .5, 2); //PRIMITIVE SHAPE AND SIZE
       let uhohBlockMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff }); //COLOR OF MESH
       let uhohBlock = new THREE.Mesh(uhohBlockGeometry, uhohBlockMaterial); //MESH POINTS MAT TO GEOMETRY
-      uhohBlock.position.x = x;
-      uhohBlock.position.y = y;
-      uhohBlock.position.z = z;
+      uhohBlock.position.set(x, y, z);
       scene.add(uhohBlock)
     } else {
       // debugger
       // console.log(blocks[i].input)
       let pos = blocks[i].input;
+      debugger
       let x = pos[0];
       let y = pos[1];
       let z = pos[2];
 
-      let foundBlockGeometry = new THREE.BoxBufferGeometry(2, 2, 2); //PRIMITIVE SHAPE AND SIZE
+      let foundBlockGeometry = new THREE.BoxBufferGeometry(.5, 2, 3); //PRIMITIVE SHAPE AND SIZE
       let foundBlockMaterial = new THREE.MeshLambertMaterial({ color: 0x13fc03 }); //COLOR OF MESH
       let foundBlock = new THREE.Mesh(foundBlockGeometry, foundBlockMaterial); //MESH POINTS MAT TO GEOMETRY
-      foundBlock.position.x = x;
-      foundBlock.position.y = y;
-      foundBlock.position.z = z;
+      foundBlock.position.set(x, y, z);
+      debugger
       scene.add(foundBlock)
       // TODO: change color of block
     }
@@ -409,18 +425,6 @@ let animate = function (timeStamp) {
   }
   // debugger
   //FWD 
-  // let blocks = [];
-  for (let i = 0; i < scene.children.length; i++) {
-    let child = scene.children[i]; 
-    // debugger
-    if (child.name === 'block') {
-      // debugger
-      blocks.push({input: [child.position.x, child.position.y, child.position.z, 1], output: child.answer})
-    }
-  }
-  // debugger
-
-
   if ((input.isFwdPressed || label === "forward")) {
     // console.log(player.position.z)
     player.__dirtyPosition = true;
