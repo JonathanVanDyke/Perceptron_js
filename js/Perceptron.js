@@ -1,8 +1,11 @@
 class Perceptron {
   constructor(numWeights, learningConst) {
-    this.weights = new Array(numWeights);
-    for (let i = 0; i < this.weights.length; i++) {
-      // this.weights.push(Math.random(-1, 1))
+    this.weights = [];
+    let arr = [-1, 1];
+    for (let i = 0; i < numWeights; i++) {
+      // debugger
+      let idx = Math.floor(Math.random() * 2);
+      this.weights.push(arr[idx]);
     }
     this.learningConst = learningConst;
   }
@@ -16,6 +19,7 @@ class Perceptron {
     for (let i = 0; i < this.weights.length; i++) {
       this.weights[i] += this.learningConst * error * inputs[i];
     }
+    debugger
   }
 
   feedforward(inputs) {
@@ -23,6 +27,7 @@ class Perceptron {
     for (let i = 0; i < this.weights.length; i++) {
       sum += inputs[i] * this.weights[i];
     }
+    // only getting -1 or undefined.... FIX
     return this.activate(sum);
   }
 

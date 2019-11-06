@@ -1,6 +1,6 @@
 let camera, sceneHUD, cameraHUD, rotateAngle, renderer, scene, player, bullets, bulletsBlock, input, environment, _vector, clock, lastTimeStamp;
 let label = '';
-let blocks = [{input: 0, output: 1}];
+let blocks = [{input: [0, 0, 0, 1], output: 1}];
 
 let count = 0;
 let perceptron = new Perceptron(4, 0.001);
@@ -256,14 +256,31 @@ let animate = function (timeStamp) {
   //if (object.position.x > 0) {answer = 1; else answer = -1}
   // training[i] = {input: object.position.x, output: answer}
 
-  perceptron.train(blocks[count].input, blocks[count].output);
+  // debugger
+  if (count > 0) {
+    perceptron.train(blocks[count].input, blocks[count].output);
+  }
   count = (count + 1) % blocks.length;
 
   for (let i = 0; i < count; i++) {
     let guess = perceptron.feedforward(blocks[i].input);
     if (guess > 0) {
       // TODO: doesn't color if guess isn't 0
+      let pos = blocks[i].input;
+      // debugger
+      let x = pos[0];
+      let y = pos[1];
+      let z = pos[2];
+
+      let uhohBlockGeometry = new THREE.BoxBufferGeometry(3, 2, 2); //PRIMITIVE SHAPE AND SIZE
+      let uhohBlockMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff }); //COLOR OF MESH
+      let uhohBlock = new THREE.Mesh(uhohBlockGeometry, uhohBlockMaterial); //MESH POINTS MAT TO GEOMETRY
+      uhohBlock.position.x = x;
+      uhohBlock.position.y = y;
+      uhohBlock.position.z = z;
+      scene.add(uhohBlock)
     } else {
+      // debugger
       // console.log(blocks[i].input)
       let pos = blocks[i].input;
       let x = pos[0];
@@ -397,11 +414,11 @@ let animate = function (timeStamp) {
     let child = scene.children[i]; 
     // debugger
     if (child.name === 'block') {
-      debugger
+      // debugger
       blocks.push({input: [child.position.x, child.position.y, child.position.z, 1], output: child.answer})
     }
   }
-  debugger
+  // debugger
 
 
   if ((input.isFwdPressed || label === "forward")) {
