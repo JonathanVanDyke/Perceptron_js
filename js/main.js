@@ -136,7 +136,7 @@ function createCamera() {
 
   
   camera.rotation.x = radians;
-  camera.position.set(0, 25, -10);
+  camera.position.set(0, 250, 0);
 }
 
 function createLights() {
@@ -188,7 +188,7 @@ function createMeshes() {
   // ELEMENT ONE (**LOOK UP MATERIAL OPTIONS**)
   for (let i = 0; i < 40; i++) {
     let env2BlockGeometry = new THREE.BoxBufferGeometry(1, 1, 1); //PRIMITIVE SHAPE AND SIZE
-    let env2BlockMaterial = new THREE.MeshLambertMaterial({ color: 0x22CAC2 }); //COLOR OF MESH
+    let env2BlockMaterial = new THREE.MeshLambertMaterial({ color: 0xfc2003 }); //COLOR OF MESH
     let env2Block = new THREE.Mesh(env2BlockGeometry, env2BlockMaterial); //MESH POINTS MAT TO GEOMETRY
     env2Block.position.x = (Math.random() - 0.5) * 100;
     env2Block.position.y = 200;
@@ -198,18 +198,10 @@ function createMeshes() {
       env2Block.answer = -1;
     } else {
       env2Block.answer = 1;
+      debugger
+      env2Block.material.wireframe = true;
+      // env2Block.material.color.set(0, 0, 0);
     }
-
-    env3Block.addEventListener('collision', function (other_object, linear_velocity, angular_velocity) {
-      if (other_object.name === 'block') {
-        // player.points += 1;
-        // let pointEle = document.getElementById('points')
-        // pointEle.innerHTML = `Score: ${player.points}`
-        scene.remove(other_object)
-      }
-    });
-
-
     scene.add(env2Block); //DROP ELEMENT INTO VIRTUAL ENVIRONMENT
   }
 
@@ -217,31 +209,31 @@ function createMeshes() {
 
 
   //PLAYER
-  let playerGeometry = new THREE.ConeBufferGeometry(1, 3, 4);
-  let playerMaterial = new THREE.MeshLambertMaterial({
-    color: 0xff00C2,
-    opacity: 1.0,
-    transparent: true,
-  })
+  // let playerGeometry = new THREE.ConeBufferGeometry(1, 3, 4);
+  // let playerMaterial = new THREE.MeshLambertMaterial({
+  //   color: 0xff00C2,
+  //   opacity: 1.0,
+  //   transparent: true,
+  // })
 
-  player = new Physijs.BoxMesh(playerGeometry, playerMaterial); 
-  player.position.set(0, 250, 0);
-  playerGeometry.rotateX(Math.PI / 2);
-  playerGeometry.rotateY(Math.PI);
-  player.name = 'player';
-  player.hp = 20;
-  player.add(camera)
+  // player = new Physijs.BoxMesh(playerGeometry, playerMaterial); 
+  // player.position.set(0, 250, 0);
+  // playerGeometry.rotateX(Math.PI / 2);
+  // playerGeometry.rotateY(Math.PI);
+  // player.name = 'player';
+  // player.hp = 20;
+  // player.add(camera)
 
-  player2 = new Physijs.BoxMesh(playerGeometry, playerMaterial);
+  // player2 = new THREE.Mesh(playerGeometry, playerMaterial);
 
-  let lightPlayer = new THREE.DirectionalLight(0xFFFFFF, 1);
-  lightPlayer.position.set(0, 200, 0)
-  lightPlayer.target = player;
-  scene.add(lightPlayer)
-  scene.add(lightPlayer.target);
+  // let lightPlayer = new THREE.DirectionalLight(0xFFFFFF, 1);
+  // lightPlayer.position.set(0, 200, 0)
+  // lightPlayer.target = player;
+  // scene.add(lightPlayer)
+  // scene.add(lightPlayer.target);
 
-  player2.hp = 20;
-  scene.add(player)
+  // player2.hp = 20;
+  // scene.add(player)
 
 
 
@@ -268,7 +260,7 @@ let animate = function (timeStamp) {
     let child = scene.children[i];
     // debugger
     if (child.name === 'block') {
-      debugger
+      // debugger
       blocks.push({ input: [child.position.x, child.position.y, child.position.z, 1], output: child.answer })
     }
   }
@@ -276,7 +268,7 @@ let animate = function (timeStamp) {
 
   // debugger
   // if (count > 0) {
-    perceptron.train(blocks[count].input, blocks[count].output);
+    // perceptron.train(blocks[count].input, blocks[count].output);
   // }
   count = (count + 1) % blocks.length;
 
@@ -294,6 +286,16 @@ let animate = function (timeStamp) {
       let uhohBlockMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff }); //COLOR OF MESH
       let uhohBlock = new THREE.Mesh(uhohBlockGeometry, uhohBlockMaterial); //MESH POINTS MAT TO GEOMETRY
       uhohBlock.position.set(x, y, z);
+      uhohBlock.name = 'uhoh';
+
+      uhohBlock.addEventListener('collision', function (other_object, linear_velocity, angular_velocity) {
+        if (other_object.name === 'found') {
+          // player.points += 1;
+          // let pointEle = document.getElementById('points')
+          // pointEle.innerHTML = `Score: ${player.points}`
+          scene.remove(uhohBlock)
+        }
+      });
       scene.add(uhohBlock)
     } else {
       // debugger
@@ -308,7 +310,16 @@ let animate = function (timeStamp) {
       let foundBlockMaterial = new THREE.MeshLambertMaterial({ color: 0x13fc03 }); //COLOR OF MESH
       let foundBlock = new THREE.Mesh(foundBlockGeometry, foundBlockMaterial); //MESH POINTS MAT TO GEOMETRY
       foundBlock.position.set(x, y, z);
-      debugger
+      foundBlock.name = 'found';
+
+      foundBlock.addEventListener('collision', function (other_object, linear_velocity, angular_velocity) {
+        if (other_object.name === 'uhoh') { 
+          // player.points += 1;
+          // let pointEle = document.getElementById('points')
+          // pointEle.innerHTML = `Score: ${player.points}`
+          scene.remove(foundBlock)
+        }
+      });
       scene.add(foundBlock)
       // TODO: change color of block
     }
@@ -317,8 +328,8 @@ let animate = function (timeStamp) {
   // let label = '' || label;
   stats.begin();
 
-  player.setAngularFactor(_vector);
-  player.setAngularVelocity(_vector);
+  // player.setAngularFactor(_vector);
+  // player.setAngularVelocity(_vector);
 
   let delta = clock.getDelta(); // seconds
   // console.log(clock.getElapsedTime())
@@ -349,143 +360,147 @@ let animate = function (timeStamp) {
   let movementSpeed = 12 * timeDelta;
 
 
-  //BOOST
-  let boost = 1;
-  if (input.isShiftPressed) {
-    boost = 10 * movementSpeed;
-    // boost = 1
-  }
+  // //BOOST
+  // let boost = 1;
+  // if (input.isShiftPressed) {
+  //   boost = 10 * movementSpeed;
+  //   // boost = 1
+  // }
 
-  let playerSpeed = movementSpeed * boost * 2;
+  // let playerSpeed = movementSpeed * boost * 2;
   
-  //LEFT
-  // if (input.isLeftPressed || label === "left") {
-  if ((input.isLeftPressed || label === "left") && player.position.x > -200) {
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-    // player.setLinearVelocity(_vector);
-    player.translateOnAxis(new THREE.Vector3(playerSpeed * 50, 0, 0), -rotateAngle)
+  // //LEFT
+  // // if (input.isLeftPressed || label === "left") {
+  // if ((input.isLeftPressed || label === "left") && player.position.x > -200) {
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  //   // player.setLinearVelocity(_vector);
+  //   player.translateOnAxis(new THREE.Vector3(playerSpeed * 50, 0, 0), -rotateAngle)
 
-    // player.position.x -= Math.sin(player.rotation.y + Math.PI / 2) * playerSpeed;
-    // player.position.z -= Math.cos(player.rotation.y + Math.PI / 2) * playerSpeed;
-  }
-  //RIGHT
-  // if (input.isRightPressed || label === "right") {
-  if ((input.isRightPressed || label === "right") && player.position.x < 200) {
-    // console.log(player.position.x)
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-    // player.setLinearVelocity(_vector);
-    player.translateOnAxis(new THREE.Vector3(-playerSpeed * 50, 0, 0), -rotateAngle)
+  //   // player.position.x -= Math.sin(player.rotation.y + Math.PI / 2) * playerSpeed;
+  //   // player.position.z -= Math.cos(player.rotation.y + Math.PI / 2) * playerSpeed;
+  // }
+  // //RIGHT
+  // // if (input.isRightPressed || label === "right") {
+  // if ((input.isRightPressed || label === "right") && player.position.x < 200) {
+  //   // console.log(player.position.x)
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  //   // player.setLinearVelocity(_vector);
+  //   player.translateOnAxis(new THREE.Vector3(-playerSpeed * 50, 0, 0), -rotateAngle)
 
-    // player.position.x += Math.sin(player.rotation.y + Math.PI / 2) * playerSpeed;
-    // player.position.z += Math.cos(player.rotation.y + Math.PI / 2) * playerSpeed;
-  }
-  //JUMP  
-  if (input.isSpacePressed && player.position.y < 255) {
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-    player.setLinearVelocity(_vector);
-    player.setAngularFactor(_vector);
-    player.setAngularVelocity(_vector);
-    player.translateOnAxis(new THREE.Vector3(0, -movementSpeed * 100, 0), -rotateAngle)
-    // player.position.y += playerSpeed*2;
-  }
+  //   // player.position.x += Math.sin(player.rotation.y + Math.PI / 2) * playerSpeed;
+  //   // player.position.z += Math.cos(player.rotation.y + Math.PI / 2) * playerSpeed;
+  // }
+  // //JUMP  
+  // if (input.isSpacePressed && player.position.y < 255) {
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  //   player.setLinearVelocity(_vector);
+  //   player.setAngularFactor(_vector);
+  //   player.setAngularVelocity(_vector);
+  //   player.translateOnAxis(new THREE.Vector3(0, -movementSpeed * 100, 0), -rotateAngle)
+  //   // player.position.y += playerSpeed*2;
+  // }
 
-  if (player.position.y < 100) {
-    // player.translateOnAxis(new THREE.Vector3(0, -1000, 0), -rotateAngle)
-    player.position.y = 250
-  }
+  // if (player.position.y < 100) {
+  //   // player.translateOnAxis(new THREE.Vector3(0, -1000, 0), -rotateAngle)
+  //   player.position.y = 250
+  // }
 
-  if(input.isXPressed) {
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-    if (player.position.y > 4.5) {
-      player.translateOnAxis(new THREE.Vector3(0, movementSpeed * 100, 0), -rotateAngle)
-      player.translateOnAxis(new THREE.Vector3(0, movementSpeed * 100, 0), -rotateAngle)
-      player.setAngularFactor(_vector);
-      player.setAngularVelocity(_vector);
-    }
-  }
+  // if(input.isXPressed) {
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  //   if (player.position.y > 4.5) {
+  //     player.translateOnAxis(new THREE.Vector3(0, movementSpeed * 100, 0), -rotateAngle)
+  //     player.translateOnAxis(new THREE.Vector3(0, movementSpeed * 100, 0), -rotateAngle)
+  //     player.setAngularFactor(_vector);
+  //     player.setAngularVelocity(_vector);
+  //   }
+  // }
 
-  if (label === "reset") {
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
+  // if (label === "reset") {
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
 
-    // player.rotation.x = 0;
-    // player.rotation.z = 0;
-    player.setLinearVelocity(_vector);
-    player.setAngularFactor(_vector);
-    player.setAngularVelocity(_vector);
-    player.position.x = 0;
-    player.position.y = 0;
-    player.position.z = 0;
-    scene.setGravity(new THREE.Vector3(0, -.1, 0));
+  //   // player.rotation.x = 0;
+  //   // player.rotation.z = 0;
+  //   player.setLinearVelocity(_vector);
+  //   player.setAngularFactor(_vector);
+  //   player.setAngularVelocity(_vector);
+  //   player.position.x = 0;
+  //   player.position.y = 0;
+  //   player.position.z = 0;
+  //   scene.setGravity(new THREE.Vector3(0, 0, 0));
 
-  }
-  // debugger
-  //FWD 
-  if ((input.isFwdPressed || label === "forward")) {
-    // console.log(player.position.z)
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-    player.setAngularFactor(_vector);
-    player.setAngularVelocity(_vector);
-    player.setAngularFactor(_vector);
-    // player.setLinearVelocity(_vector);
+  // }
+  // // debugger
+  // //FWD 
+  // if ((input.isFwdPressed || label === "forward")) {
+  //   // console.log(player.position.z)
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  //   player.setAngularFactor(_vector);
+  //   player.setAngularVelocity(_vector);
+  //   player.setAngularFactor(_vector);
+  //   // player.setLinearVelocity(_vector);
 
-    player.translateOnAxis(new THREE.Vector3(0, 0, playerSpeed*50), -rotateAngle)
-    // console.log(player.getWorldQuaternion())
+  //   player.translateOnAxis(new THREE.Vector3(0, 0, playerSpeed*50), -rotateAngle)
+  //   // console.log(player.getWorldQuaternion())
  
 
 
-    // delete3DOBJ('bullet');
+  //   // delete3DOBJ('bullet');
     
-    // player.position.x -= Math.sin(player.rotation.y) * playerSpeed;
-    // player.position.z -= Math.cos(player.rotation.y) * playerSpeed;
-  }
-  //BACK 
-  if ((input.isBwdPressed || label === "backward") && player.position.z < 200) {
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-    // player.setLinearVelocity(_vector);
-    player.translateOnAxis(new THREE.Vector3(0, 0, -playerSpeed * 100), -rotateAngle)
+  //   // player.position.x -= Math.sin(player.rotation.y) * playerSpeed;
+  //   // player.position.z -= Math.cos(player.rotation.y) * playerSpeed;
+  // }
+  // //BACK 
+  // if ((input.isBwdPressed || label === "backward") && player.position.z < 200) {
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  //   // player.setLinearVelocity(_vector);
+  //   player.translateOnAxis(new THREE.Vector3(0, 0, -playerSpeed * 100), -rotateAngle)
 
-    // player.position.x += Math.sin(player.rotation.y) * playerSpeed;
-    // player.position.z += Math.cos(player.rotation.y) * playerSpeed;
-  }
-  //RotLeft
-  if (input.isRLPressed || label === "rl") {
-    // player.rotation.y += playerSpeed/4;
-    player.rotateOnAxis(new THREE.Vector3(0, 1, 0), +0.05); 
-    // player.setLinearVelocity(_vector);
-    // console.log(player.rotateOnAxis)
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-  }
-  //RotRight
-  if (input.isRRPressed || label === "rr") {
+  //   // player.position.x += Math.sin(player.rotation.y) * playerSpeed;
+  //   // player.position.z += Math.cos(player.rotation.y) * playerSpeed;
+  // }
+  // //RotLeft
+  // if (input.isRLPressed || label === "rl") {
+  //   // player.rotation.y += playerSpeed/4;
+  //   player.rotateOnAxis(new THREE.Vector3(0, 1, 0), +0.05); 
+  //   // player.setLinearVelocity(_vector);
+  //   // console.log(player.rotateOnAxis)
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  // }
+  // //RotRight
+  // if (input.isRRPressed || label === "rr") {
 
-    player.rotateOnAxis(new THREE.Vector3(0, 1, 0), -0.05); 
-    // player.setLinearVelocity(_vector);
-    player.__dirtyPosition = true;
-    player.__dirtyRotation = true;
-  }
+  //   player.rotateOnAxis(new THREE.Vector3(0, 1, 0), -0.05); 
+  //   // player.setLinearVelocity(_vector);
+  //   player.__dirtyPosition = true;
+  //   player.__dirtyRotation = true;
+  // }
 
   
-  //Player BULLETS
+  // //Player BULLETS
+  // if (input.isFirePressed) {
+  //   perceptron.train(blocks[count].input, blocks[count].output);
+  //   player.setAngularFactor(_vector);
+  //   player.setAngularVelocity(_vector);
+  // }
+  //Train
   if (input.isFirePressed) {
-
-    player.setAngularFactor(_vector);
-    player.setAngularVelocity(_vector);
+    perceptron.train(blocks[count].input, blocks[count].output);
   }
 
-  //Player2 BULLETS
-  if (player2.firing) {
+  // //Player2 BULLETS
+  // if (player2.firing) {
 
-    player2.setAngularFactor(_vector);
-    player2.setAngularVelocity(_vector);
-  }
+  //   player2.setAngularFactor(_vector);
+  //   player2.setAngularVelocity(_vector);
+  // }
 
 
   scene.simulate();
